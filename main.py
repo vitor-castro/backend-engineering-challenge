@@ -4,8 +4,6 @@ import os
 import sys
 from datetime import datetime, timedelta
 
-# python3 main.py --input_file events.json --window_size 10
-
 events = [{"timestamp": "2018-12-26 18:11:08.509654", "translation_id": "5aa5b2f39f7254a75aa5",
            "source_language": "en",
            "target_language": "fr", "client_name": "airliberty", "event_name": "translation_delivered",
@@ -70,7 +68,7 @@ def create_output_file(events_json_data):
     end_time = max_timestamp.replace(second=0, microsecond=0) + timedelta(minutes=1)
 
     while current_time <= end_time:
-        output_file.append({"timestamp": current_time.strftime("%Y-%m-%d %H:%M:00"), "average_delivery_time": -1})
+        output_file.append({"date": current_time.strftime("%Y-%m-%d %H:%M:00"), "average_delivery_time": -1})
         current_time += timedelta(minutes=1)
 
     return output_file
@@ -104,10 +102,15 @@ def get_average_delivery_time(events_json_data, current_timestamp, window_size):
 
 def fill_avg_delivery_time(events_json_data, output_file, window_size):
     for i in range(0, len(output_file)):
-        avg_delivery_time = get_average_delivery_time(events_json_data, output_file[i]['timestamp'], window_size)
+        avg_delivery_time = get_average_delivery_time(events_json_data, output_file[i]['date'], window_size)
         output_file[i]['average_delivery_time'] = avg_delivery_time
 
     return output_file
+
+
+def print_output_file(output_file):
+    for line in output_file:
+        print(line)
 
 
 if __name__ == '__main__':
@@ -149,7 +152,6 @@ if __name__ == '__main__':
     # Fill average_delivery_time column
     output_file = fill_avg_delivery_time(events_json_data, output_file, window_size)
 
-    # Print json for debug purposes
-    print('Debug')
-    for line in output_file:
-        print(line)
+    # Print output file
+    print_output_file(output_file)
+
