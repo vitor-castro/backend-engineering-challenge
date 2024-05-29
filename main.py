@@ -1,49 +1,47 @@
-
-# python3 main.py --input_file events.json --window_size 10
-
-events = [{"timestamp": "2018-12-26 18:11:08.509654", "translation_id": "5aa5b2f39f7254a75aa5",
-               "source_language": "en",
-               "target_language": "fr", "client_name": "airliberty", "event_name": "translation_delivered",
-               "nr_words": 30,
-               "duration": 20},
-              {"timestamp": "2018-12-26 18:15:19.903159", "translation_id": "5aa5b2f39f7254a75aa4",
-               "source_language": "en",
-               "target_language": "fr", "client_name": "airliberty", "event_name": "translation_delivered",
-               "nr_words": 30,
-               "duration": 31},
-              {"timestamp": "2018-12-26 18:23:19.903159", "translation_id": "5aa5b2f39f7254a75bb3",
-               "source_language": "en",
-               "target_language": "fr", "client_name": "taxi-eats", "event_name": "translation_delivered",
-               "nr_words": 100,
-               "duration": 54}]
-
 import json
 import argparse
 import os
 import sys
 from datetime import datetime, timedelta
 
+# python3 main.py --input_file events.json --window_size 10
 
-def process_input(json_data_raw, window_size):
+events = [{"timestamp": "2018-12-26 18:11:08.509654", "translation_id": "5aa5b2f39f7254a75aa5",
+           "source_language": "en",
+           "target_language": "fr", "client_name": "airliberty", "event_name": "translation_delivered",
+           "nr_words": 30,
+           "duration": 20},
+          {"timestamp": "2018-12-26 18:15:19.903159", "translation_id": "5aa5b2f39f7254a75aa4",
+           "source_language": "en",
+           "target_language": "fr", "client_name": "airliberty", "event_name": "translation_delivered",
+           "nr_words": 30,
+           "duration": 31},
+          {"timestamp": "2018-12-26 18:23:19.903159", "translation_id": "5aa5b2f39f7254a75bb3",
+           "source_language": "en",
+           "target_language": "fr", "client_name": "taxi-eats", "event_name": "translation_delivered",
+           "nr_words": 100,
+           "duration": 54}]
+
+
+
+
+def process_input(args):
+    # Read the JSON file
     try:
-        # Parse JSON data
-        json_data = json.loads(json_data_raw)
-
-        # Log the received data for demonstration
-        print("Received JSON data:")
-        print(json.dumps(json_data, indent=4))
-
-        print(f"Received window size: {window_size}")
-
-        return json_data
-
-    except json.JSONDecodeError as e:
-        print(json.dumps({'error': f'Invalid JSON data: {str(e)}'}))
+        with open(args.input_file, 'r') as file:
+            json_data_raw = file.read()
     except Exception as e:
-        print(json.dumps({'error': str(e)}))
+        print(json.dumps({'error': f'Failed to read input file: {str(e)}'}))
+        sys.exit(1)
+
+    window_size = args.window_size
+
+    events_json_data = json.loads(json_data_raw)
+
+    return events_json_data, window_size
 
 
-def removeUnnecessaryFields(json_data):
+def remove_unnecessary_fields(json_data):
     filtered_data = []
     for translation in json_data:
         filtered_translation = {
@@ -56,15 +54,15 @@ def removeUnnecessaryFields(json_data):
     return filtered_data
 
 
-def createOutputFile(events_json_data):
+def create_output_file(events_json_data):
     # Parse timestamps in events_json_data to datetime objects
     timestamps = []
     for entry in events_json_data:
         timestamps.append(datetime.strptime(entry["timestamp"], "%Y-%m-%d %H:%M:%S.%f"))
 
-    # TODO: em vez de usar min e max uso apenas indice 0 e indice 'size'-1 pq assumimos que vem ordenado logo
-    min_timestamp = min(timestamps)
-    max_timestamp = max(timestamps)
+    # Assuming the json is sorted by timestamp
+    min_timestamp = timestamps[0]
+    max_timestamp = timestamps[len(events_json_data) - 1]
 
     # Create output_file with the desired structure
     output_file = []
@@ -78,7 +76,7 @@ def createOutputFile(events_json_data):
     return output_file
 
 
-def getAverageDeliveryTime(events_json_data, current_timestamp, window_size):
+def get_average_delivery_time(events_json_data, current_timestamp, window_size):
     # Parse the current_timestamp
     current_time = datetime.strptime(current_timestamp, "%Y-%m-%d %H:%M:%S")
 
@@ -104,19 +102,18 @@ def getAverageDeliveryTime(events_json_data, current_timestamp, window_size):
     return average_duration
 
 
-def fillAvgDeliveryTime(events_json_data, output_file, window_size):
-
+def fill_avg_delivery_time(events_json_data, output_file, window_size):
     for i in range(0, len(output_file)):
-        avg_delivery_time = getAverageDeliveryTime(events_json_data, output_file[i]['timestamp'], window_size)
+        avg_delivery_time = get_average_delivery_time(events_json_data, output_file[i]['timestamp'], window_size)
         output_file[i]['average_delivery_time'] = avg_delivery_time
 
     return output_file
 
 
-
 if __name__ == '__main__':
 
     '''
+    # ------ CODE TO USE IN THE FINAL VERSION ------
     # Setup argument parser
     parser = argparse.ArgumentParser(description='Process JSON data with a given window size.')
     parser.add_argument('--input_file', type=str, required=True, help='Path to the input JSON file.')
@@ -125,17 +122,11 @@ if __name__ == '__main__':
     # Parse arguments
     args = parser.parse_args()
 
-    # Read the JSON file
-    try:
-        with open(args.input_file, 'r') as file:
-            json_data_raw = file.read()
-    except Exception as e:
-        print(json.dumps({'error': f'Failed to read input file: {str(e)}'}))
-        sys.exit(1)
-
-    window_size = args.window_size
+    # Process the input
+    #events_json_data = process_input(json_data_raw, window_size)
+    events_json_data, window_size = process_input(args)
+    # ------ CODE TO USE IN THE FINAL VERSION ------
     '''
-
 
     # ------ debug code ------
     try:
@@ -145,26 +136,20 @@ if __name__ == '__main__':
         print(json.dumps({'error': f'Failed to read input file: {str(e)}'}))
         sys.exit(1)
     window_size = 10
+
+    events_json_data = json.loads(json_data_raw)
     # ------ debug code ------
 
-    # Process the input
-    events_json_data = process_input(json_data_raw, window_size)
-
     # Keep only 'timestamp' and 'duration'
-    events_json_data = removeUnnecessaryFields(events_json_data)
+    events_json_data = remove_unnecessary_fields(events_json_data)
 
     # Create output file
-    output_file = createOutputFile(events_json_data)
+    output_file = create_output_file(events_json_data)
 
     # Fill average_delivery_time column
-    output_file = fillAvgDeliveryTime(events_json_data, output_file, window_size)
+    output_file = fill_avg_delivery_time(events_json_data, output_file, window_size)
 
     # Print json for debug purposes
     print('Debug')
     for line in output_file:
         print(line)
-
-
-
-
-
