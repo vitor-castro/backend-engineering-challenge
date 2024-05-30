@@ -1,26 +1,7 @@
 import json
 import argparse
-import os
 import sys
 from datetime import datetime, timedelta
-
-events = [{"timestamp": "2018-12-26 18:11:08.509654", "translation_id": "5aa5b2f39f7254a75aa5",
-           "source_language": "en",
-           "target_language": "fr", "client_name": "airliberty", "event_name": "translation_delivered",
-           "nr_words": 30,
-           "duration": 20},
-          {"timestamp": "2018-12-26 18:15:19.903159", "translation_id": "5aa5b2f39f7254a75aa4",
-           "source_language": "en",
-           "target_language": "fr", "client_name": "airliberty", "event_name": "translation_delivered",
-           "nr_words": 30,
-           "duration": 31},
-          {"timestamp": "2018-12-26 18:23:19.903159", "translation_id": "5aa5b2f39f7254a75bb3",
-           "source_language": "en",
-           "target_language": "fr", "client_name": "taxi-eats", "event_name": "translation_delivered",
-           "nr_words": 100,
-           "duration": 54}]
-
-
 
 
 def process_input(args):
@@ -33,7 +14,6 @@ def process_input(args):
         sys.exit(1)
 
     window_size = args.window_size
-
     events_json_data = json.loads(json_data_raw)
 
     return events_json_data, window_size
@@ -115,33 +95,16 @@ def print_output_file(output_file):
 
 if __name__ == '__main__':
 
-    '''
-    # ------ CODE TO USE IN THE FINAL VERSION ------
     # Setup argument parser
-    parser = argparse.ArgumentParser(description='Process JSON data with a given window size.')
+    parser = argparse.ArgumentParser(description='Process JSON data and window size.')
     parser.add_argument('--input_file', type=str, required=True, help='Path to the input file (str).')
-    parser.add_argument('--window_size', type=int, required=True, help='Window size (int)).')
+    parser.add_argument('--window_size', type=int, required=True, help='Window size (int).')
 
     # Parse arguments
     args = parser.parse_args()
 
     # Process the input
-    #events_json_data = process_input(json_data_raw, window_size)
     events_json_data, window_size = process_input(args)
-    # ------ CODE TO USE IN THE FINAL VERSION ------
-    '''
-
-    # ------ debug code ------
-    try:
-        with open("events.json", 'r') as file:
-            json_data_raw = file.read()
-    except Exception as e:
-        print(json.dumps({'error': f'Failed to read input file: {str(e)}'}))
-        sys.exit(1)
-    window_size = 10
-
-    events_json_data = json.loads(json_data_raw)
-    # ------ debug code ------
 
     # Keep only 'timestamp' and 'duration'
     events_json_data = remove_unnecessary_fields(events_json_data)
