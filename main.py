@@ -119,8 +119,8 @@ if __name__ == '__main__':
     # ------ CODE TO USE IN THE FINAL VERSION ------
     # Setup argument parser
     parser = argparse.ArgumentParser(description='Process JSON data with a given window size.')
-    parser.add_argument('--input_file', type=str, required=True, help='Path to the input JSON file.')
-    parser.add_argument('--window_size', type=int, required=True, help='The window size as an integer.')
+    parser.add_argument('--input_file', type=str, required=True, help='Path to the input file (str).')
+    parser.add_argument('--window_size', type=int, required=True, help='Window size (int)).')
 
     # Parse arguments
     args = parser.parse_args()
